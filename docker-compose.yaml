@@ -1,0 +1,38 @@
+version: "2"
+services:
+  djserver:
+    build: .
+    container_name: djserver
+    image: djserver:1.0
+    environment:
+      - DJANGO_SETTINGS_MODULE=djservercc.settings
+      - DEV=1
+      - PYTHONUNBUFFERED=1
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=flash
+      - MYSQL_HOST=db.local
+      - TZ=America/Argentina/Buenos_Aires
+    ports:
+      - 8007:8007
+    volumes:
+      - ./:/app
+    command: python manage.py runserver 0.0.0.0:8007
+    #command: tail -f /dev/null
+    links:
+      - mysqlserver_1:db.local
+    depends_on:
+      - mysqlserver_1
+
+  mysqlserver_1:
+    image: mysql:5.7.33
+    container_name: mysqlserver_1
+    environment:
+      - MYSQL_ROOT_PASSWORD=flash
+      - MYSQL_DATABASE=djserver
+      - TZ=America/Argentina/Buenos_Aires
+    restart: on-failure
+    ports:
+      - 3304:3306
+    volumes:
+      - ./docker/mysqlserver_1:/var/lib/mysql
+
